@@ -1,4 +1,4 @@
-from basicpage import run_app
+import basicpage
 
 if __name__ == '__main__':
-    run_app()
+    basicpage.run_app()
