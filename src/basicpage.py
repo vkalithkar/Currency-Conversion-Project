@@ -16,7 +16,13 @@ import pandas as pd
 
 # PATH_CURRENCY = os.path.join('..', 'data', 'clean_exchange_data.csv')
 PATH_CURRENCY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'clean_exchange_data.csv'))
+PATH_CRISIS = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'clean_crisis_data.csv'))
+
 exchange_df = pd.read_csv(PATH_CURRENCY)
+crisis_df = pd.read_csv(PATH_CRISIS)
+
+argentina_df = crisis_df[crisis_df['country'] == 'Argentina']
+
 country_to_currency, currency_to_country  = analysis.get_countrycurrency_dicts(exchange_df)
 
 def run_app() -> None:
@@ -48,7 +54,7 @@ def make_timeline_fig() -> plots.go.Figure:
     fig.update_layout(margin=dict(t=3, b=30, l=30, r=30))
     return fig
 
-def create_layout( app: Dash, exchange_df: pd.DataFrame) -> None:
+def create_layout(app: Dash, exchange_df: pd.DataFrame) -> None:
     country_list = exchange_df['country'].unique().tolist()
     currency_list = exchange_df['currency_name'].unique().tolist()
 
@@ -98,10 +104,12 @@ def create_layout( app: Dash, exchange_df: pd.DataFrame) -> None:
                                           ], 
                                           style = {'display': 'flex', 
                                                    'flexDirection': 'row', 
-                                                   'justifyContent': 'flex-start', 
-                                                   'padding': '10px'}),
-                                html.H3(id='exchange-output', children="Exchange Rate:"),
-                                html.Small("Note: Europe"),
+                                                   'justifyContent': 'flex-start' 
+                                                   }),
+                                html.H3(id='exchange-output', children="Exchange Rate:", style={"marginBottom":'25px'}),
+                                html.Small(id='note', 
+                                           children = "Note: The European currency of the Euro was introduced January 1st, 1999. As of 2025, the countries Austria, Belgium, Croatia, Cyprus, Estonia, Finland, France, Germany, Greece, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malta, the Netherlands, Portugal, Slovakia, Slovenia and Spain use the Euro. The Currency Capsule includes the Euro as a currency under a separate country label of Europe.",
+                                           ),
                                 html.Div(id = "figure-area",
                                          children=[
                                             html.Div([
@@ -117,7 +125,7 @@ def create_layout( app: Dash, exchange_df: pd.DataFrame) -> None:
                                             html.Div([
                                                 html.H3("Timeline of Historical Events",
                                                         style = {'textAlign':'center'}),
-                                                dcc.Graph(id='time-figure', figure=make_timeline_fig())
+                                                dcc.Graph(id='time-figure', figure= plots.make_argentina_scatter(argentina_df))
                                             ], 
                                             style={'flex': '1','display': 'inline-block', 'border': '1px solid #b59e5f',})
                                          ], 
@@ -181,3 +189,11 @@ def two_buttons(submit_val_clicks, reset_clicks, country, currency, year):
             return f"Exchange rate: error - {str(e)}", no_update, no_update, no_update, no_update, no_update
     
     return no_update, no_update, no_update, no_update, no_update, no_update
+
+# callback for timeline
+@callback(
+    Output('argentina-timeline', 'figure'),
+    Input('argentina-timeline', 'id')  
+)
+def display_timeline(_):
+    return plots.make_argentina_scatter(argentina_df)
