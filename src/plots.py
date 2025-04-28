@@ -5,6 +5,11 @@ import pandas as pd
 
 def plotly_line(x: np.ndarray, y:np.ndarray) -> go.Figure:
     fig = px.line(x=x, y=y)
+    
+    fig.update_layout(
+        xaxis_title="Year",
+        yaxis_title="Currency Exchange Rate (relative to USD)"
+    )
     fig.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(24, 34, 37, 0.7)',
@@ -23,53 +28,22 @@ def plotly_line(x: np.ndarray, y:np.ndarray) -> go.Figure:
                    griddash='dot')
     )
     fig.update_traces(line=dict(color='#280409', width = 4))  
-    return fig
-
-def plotly_timeline() -> go.Figure:
-    df = pd.DataFrame([dict(Task="Argentina Crisis", Start='1981-12-01', Finish='1982-12-31'),
-                       dict(Task="Currency Reform", Start='1983-01-01', Finish='1983-06-30')])
-    fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task")
-    fig.update_yaxes(autorange="reversed")  
-    fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#b59e5f'),
-        xaxis=dict(color='#b59e5f', gridcolor='#b59e5f', gridwidth=1),
-        yaxis=dict(color='#b59e5f', gridcolor='#b59e5f', gridwidth=1)
+    fig.update_traces(
+        hovertemplate="<b>Year:</b> %{x}<br>" +
+                      "<b>Exchange Rate:</b> %{y}<br>" +
+                      "<extra></extra>"
     )
     return fig
 
-def make_crisis_timeline_fig(df: pd.DataFrame) -> px.scatter:
-    fig = px.scatter(
-        df,
-        x="year",
-        y="country",
-        text="event",
-        hover_data=["event_notes", "domestic_notes", "external_notes"],
-        title="Historical Crisis Events Timeline",
-        labels={"year": "Year", "country": "Country"},
-        height=600
-    )
-
-    fig.update_traces(marker=dict(size=10), textposition='top center')
-    fig.update_layout(
-        yaxis=dict(categoryorder='category ascending'),
-        margin=dict(l=20, r=20, t=40, b=20),
-        plot_bgcolor='#182225',
-        paper_bgcolor='#182225',
-        font_color='#b59e5f'
-    )
-
-    return fig
-
-def make_argentina_scatter(df):
+# https://plotly.com/python/hover-text-and-formatting/
+def plotly_scatter(country_crisis_df) -> go.Figure:
     color_map = {
-        'Inflation Crisis': '#280409',     # Burgundy
-        'Gain of Independence': '#008080',    # Teal
+        'Inflation Crisis': '#280409',     # maroon
+        'Gain of Independence': '#008080',    # teal
         'Gold Standard Adoption': '#344756',   # slate
-        'Gold Standard Suspension': '#C0C0C0',    # Silver
+        'Gold Standard Suspension': '#C0C0C0',    # silver
         'Banking Crisis': '#FFDB58',  # Mustard
-        'Systemic Crisis': '#36454F',               # Charcoal
+        'Systemic Crisis': '#36454F',               # black
         'Currency Crisis': '#322a17'
     }
     event_y_positions = {
@@ -82,14 +56,18 @@ def make_argentina_scatter(df):
         'Gain of Independence': 0.6
     }
 
-    df = df.copy()
-    df['y_axis'] = df['event'].map(event_y_positions)
+    country_crisis_df = country_crisis_df.copy()
+    country_crisis_df['y_axis'] = country_crisis_df['event'].map(event_y_positions)
 
-    fig = px.scatter(df,
+    country_crisis_df['event_notes'] = country_crisis_df['event_notes'].apply(lambda x: insert_linebreaks(x))
+    country_crisis_df['domestic_notes'] = country_crisis_df['domestic_notes'].apply(lambda x: insert_linebreaks(x))
+    country_crisis_df['external_notes'] = country_crisis_df['external_notes'].apply(lambda x: insert_linebreaks(x))
+
+    fig = px.scatter(country_crisis_df,
                      x = "year",
                      y = 'y_axis',
                      color="event", 
-                     hover_data=["event_notes", "domestic_notes", "external_notes"],
+                     hover_data=["event", "event_notes", "domestic_notes", "external_notes"],
                      color_discrete_map=color_map)
 
     fig.update_traces(marker=dict(size=12))
@@ -104,11 +82,21 @@ def make_argentina_scatter(df):
                       paper_bgcolor='rgba(0,0,0,0)',
                       plot_bgcolor='rgba(24, 34, 37, 0.7)',
                       font_color='#b59e5f',
-                      height=550,
+                      height=600,
                       xaxis=dict(color='#b59e5f', gridcolor='#b59e5f'),
                       #legend_title_text='Event Type'
-                      showlegend=False
+                      showlegend=False,
+                      hoverlabel=dict(align="left")
     )
+    fig.update_traces(
+        marker=dict(size=12),
+        hovertemplate="<b>Year:</b> %{x}<br>" +
+                      "<b>Event:</b> %{customdata[0]}<br>" +
+                      "<b>Domestic notes:</b> %{customdata[1]}<br>" +
+                      "<b>External notes:</b> %{customdata[2]}<br>" +
+                      "<extra></extra>"
+    )
+
     # fig.update_layout(legend=dict(
     #                   yanchor="top",
     #                   y=0.99,
@@ -118,3 +106,9 @@ def make_argentina_scatter(df):
 
 
     return fig
+
+def insert_linebreaks(text, every=50):
+    if isinstance(text, str):
+        return '<br>'.join(text[i:i+every] for i in range(0, len(text), every))
+    else:
+        return text
