@@ -59,7 +59,7 @@ def get_exchange_rate_val(exchange_df: pd.DataFrame,
         rate (float): the exchange rate value gathered from the exchange_df DataFrame for the given fields.
     """
 
-    # year starts out as a string input field, convert to int
+    # Year starts out as a string input field, convert to int
     year = int(year)
 
     subset = exchange_df[

@@ -5,7 +5,5 @@ if __name__ == '__main__':
 
 
 #later after presentation
-# code commenting 
-# git readme
 # remove reloads, get rid of debug
 # final testing

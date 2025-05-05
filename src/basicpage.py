@@ -12,6 +12,7 @@ reload(plots)
 import os
 import pandas as pd
 
+# Set the path to the data files
 PATH_CURRENCY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'clean_exchange_data.csv'))
 PATH_CRISIS = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'clean_crisis_data.csv'))
 
@@ -55,9 +56,11 @@ def make_line_fig(price_country: str = "United States of America") -> plots.go.F
     Output:
         fig (plots.go.Figure): the Plotly line graph figure object that will be displayed in the app. 
     """
+    # Get the exchange rate data (x is the years, y is the exchange rates) for the selected country
     x, y = analysis.get_country_exchange_data(exchange_df, price_country)
     fig = plots.plotly_line(x, y)
 
+    # Set margins
     fig.update_layout(margin=dict(t=3, b=30, l=30, r=30))
 
     return fig
@@ -73,11 +76,12 @@ def make_timeline_fig(crisis_country: str = "United States of America") -> plots
     Output:
         fig (plots.go.Figure): the Plotly scatter graph figure object that will be displayed in the app. 
     """
+    # Get the historical crisis/events dataframe for the selected country
     subset_crisis_df = analysis.get_country_crisis_data(crisis_df, crisis_country)
 
     # Hong Kong, Europe, and Israel have exchange rate data but not crisis data
+    # Return an empty placeholder figure if no crisis data exists for the selected country
     if subset_crisis_df.empty:
-        # Return an empty placeholder figure if no crisis data
         fig = plots.go.Figure()
         fig.update_layout(
             title_text=f"No crisis data available for {crisis_country}",
@@ -90,6 +94,7 @@ def make_timeline_fig(crisis_country: str = "United States of America") -> plots
         )
         return fig
     
+    # Generate the scatter plot using the crisis data
     fig = plots.plotly_scatter(subset_crisis_df)
     fig.update_layout(margin=dict(t=3, b=30, l=30, r=30))
 
@@ -105,10 +110,14 @@ def create_layout(app: Dash) -> None:
         app (Dash): the app whose layout attribute will be this created layout.
     
     """
+    # Get the list of countries and currencies from the exchange_df dataframe
+    # and convert them to lists for the dropdown options
     country_list = exchange_df['country'].unique().tolist()
     currency_list = exchange_df['currency_name'].unique().tolist()
 
+    # Create the layout for the app
     layout = html.Div(id='main-div',
+                                # First div for the title and icon
                       children=[html.Div([html.H1('The Currency Capsule'),
 
                                           html.Img(src=PATH_ICON,
@@ -119,8 +128,10 @@ def create_layout(app: Dash) -> None:
                                        'alignItems': 'center',
                                        'flexDirection': 'row'}
                                 ), 
+                                # Second div for the description
                                 html.H2('Your one-stop shop to understanding finances across time!'), 
                                 
+                                # Div for the input heading and informational popover to explain the inputs
                                 html.Div([html.H3("Input:", style={"textDecoration": "underline"}),
                                           
                                           dbc.Button("?", id="component-target", n_clicks=0, className='popover-icon'),
@@ -134,6 +145,10 @@ def create_layout(app: Dash) -> None:
                                                   'justifyContent': 'flex-start'}
                                 ),
 
+                                # Div for the inputs, place to input the country in a dropdown, 
+                                # currency in a filtered dropdown, and year in a text area
+                                # and the button to submit the values
+                                # Also contains a button to reset the values
                                 html.Div(id = "input_area", 
                                          children = [dcc.Dropdown(options = country_list, 
                                                                   id='select-country', 
@@ -180,6 +195,8 @@ def create_layout(app: Dash) -> None:
                                                    'flexDirection': 'row', 
                                                    'justifyContent': 'flex-start'}
                                 ),
+                                # Contains exchange rate output header, exchange rate output field, and a divider
+                                # Also contains another informational popover to explain the exchange rates
                                 html.H3(id='exchange-output', 
                                         children="Exchange Rate:", 
                                         style={"marginBottom":'25px', 
@@ -203,7 +220,10 @@ def create_layout(app: Dash) -> None:
                                 ],
                                         style={'padding':'8px'}
                                 ),
-
+                                
+                                # Div for the line graph and the timeline graph, side by side
+                                # The line graph shows the country's exchange rate over time, 
+                                # the timeline graph shows the country's historical crisis events
                                 html.Div(id = "figure-area",
                                          children=[html.Div([html.H3(id = 'line-graph-title',
                                                                      children = ["Exchange Rate in United States of America's Currency Over Time", 
@@ -227,6 +247,9 @@ def create_layout(app: Dash) -> None:
                                          ], 
                                          style={'display': 'flex', 'flexDirection': 'row'}
                                 ),
+
+                                # Contains the image divider and another informational popover to explain the Euro
+                                # and the countries that use it
                                 html.Div([dbc.Button("?", 
                                                      id="note-euro", 
                                                      n_clicks=0, 
@@ -238,7 +261,7 @@ def create_layout(app: Dash) -> None:
                                 ],
                                           style={'padding':'8px'}
                                 ),
-                                
+                                # Final divider
                                 html.Img(src=PATH_PAGE_DIV,
                                          style={'width': '400px', 
                                                 'margin': '0 auto',
@@ -246,11 +269,12 @@ def create_layout(app: Dash) -> None:
                                 
                       ]
              )
+    # Set the layout of the app to the created layout
     app.layout = layout
 
     return None
 
-# currency dropdown filtering callback
+# Callback #1: currency dropdown filtering based on country selection
 @callback(
     Output("select-currency", "options"),
     Input("select-country", "value")
@@ -267,21 +291,26 @@ def update_currency_options(selected_country: str) -> list:
     Output:
         options (list): the list of currency options to display and update the select-currency dropdown with. 
     """
+    # No country selected, return empty list of options
+    # This is the default state of the currency dropdown, which is empty
     if selected_country is None:
         return []
     
+    # Filter the exchange_df dataframe to get the unique currency ranges for the selected country
     filtered = exchange_df[exchange_df['country'] == selected_country]
     unique_currency_ranges = filtered[['currency_name', 'currency_range']].drop_duplicates()
     
+    # Create a list of dictionaries for the options in the dropdown
     options = []
 
+    # Iterate through the unique currency ranges and create the options for the dropdown
     for idx, row in unique_currency_ranges.iterrows():
         options.append({"label": row['currency_range'], "value": row['currency_name']})
 
     return options
 
-
-# merged two conflicting callbacks here with calback context as per:
+# Callback #2: exchange rate output, line graph, and timeline graph updates based on button clicks
+# Merged two conflicting callbacks here with calback context as per:
 # https://community.plotly.com/t/how-to-use-dash-callback-context-in-dynamic-callbacks/78447/3
 @callback(
     Output('exchange-output', 'children'),
@@ -332,40 +361,45 @@ def two_buttons(submit_val_clicks: int,
                 area value, the line-figure figure, the line-graph-title header value, the timeline-figure figure, 
                 and the timeline-title header value.
     """
+    # We need to know the context of which button(s) were clicked
 
+    # No button clicked, return no update for all outputs (default)
     if not ctx.triggered:
         return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
     
+    # Button was clicked, get output and split it to get the button id
     triggered_id = ctx.triggered[0]["prop_id"].split(".")[0]
 
-    # if user selected reset button, reset all 8 fields
+    # If user selected reset button, reset all 8 fields
     if triggered_id == 'reset-button':
         return "Exchange Rate:", None, None, "", make_line_fig(), "Currency Exchange in United States of America Over Time", make_timeline_fig(), "Timeline of Historical Events in United States of America"
     
-    # if user selected submit button, update all 8 fields as needed
+    # If user selected submit button, update all 8 fields as needed
     if triggered_id == 'submit-val':
         
-        # check for incomplete fields, return missing data alert
+        # Check for incomplete fields, return missing data alert
         if not country or not currency or not year:
             return "Exchange rate: (missing data)", no_update, no_update, no_update, no_update, no_update, no_update, no_update
         
-        # initialize the figures
+        # Initialize the figures
         updated_line_fig = make_line_fig(price_country=country)
         updated_timeline_fig = make_timeline_fig(crisis_country=country)
 
-        # no incomplete fields, now check validity of query (exists?)
+        # No incomplete fields, now check validity of query (exists?)
         try:
             rate = analysis.get_exchange_rate_val(exchange_df, country, currency, year)
 
-            if rate == 0.0: # query doesn't exist as a possibility
+            # Query doesn't exist as a possibility, return no data alert
+            if rate == 0.0: 
                 return (f"Exchange rate: no data for {country} and/or {currency} in {year}."), no_update, no_update, no_update, updated_line_fig, [f"Exchange Rate in {country}'s Currency Over Time", html.Br(), f"(Compared to the USD)"], updated_timeline_fig, [f"Timeline of Historical Events in {country}"]
 
-            # query exists, now isolate the exchange rate
+            # Query exists, now isolate the exchange rate
             return f"Exchange rate: {rate} {currency} per USD", no_update, no_update, no_update, updated_line_fig, [f"Exchange Rate in {country}'s Currency Over Time", html.Br(), f"(Compared to the USD)"], updated_timeline_fig, [f"Timeline of Historical Events in {country}"]
         
-        
+        # Everything else failed, invalid input was likely given
         except Exception as e:
             return "Exchange rate: Please enter a valid four-digit year.", no_update, no_update, no_update, no_update, no_update, no_update, no_update
     
+    # Just in case, return no update for all outputs (default)
     return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
 

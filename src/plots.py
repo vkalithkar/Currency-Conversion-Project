@@ -20,7 +20,7 @@ def plotly_line(x: np.ndarray,
     # Generate basic line graph
     fig = px.line(x=x, y=y)
     
-    # Title axes
+    # Title the axes
     fig.update_layout(
         xaxis_title="Year",
         yaxis_title="Currency Exchange Rate (relative to USD)"
