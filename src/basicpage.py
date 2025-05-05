@@ -40,7 +40,7 @@ def run_app() -> None:
     create_layout(app)
 
     # This runs the app 
-    app.run(debug=True)
+    app.run(debug=False)
 
     return None
 

@@ -9,4 +9,3 @@ if __name__ == '__main__':
 # git readme
 # remove reloads, get rid of debug
 # final testing
-# writeup
