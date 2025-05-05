@@ -1,6 +1,6 @@
 # The Currency Capsule
 
-The Currency Capsule is a Dash-based web application that provides interactive visualizations and insights into currency exchange rates and their relationship with global economic crises. It allows users to explore historical data, analyze trends, and generate custom plots.
+The Currency Capsule is a Dash-based web application that provides interactive visualizations and insights into currency exchange rates and their relationship with global historical crises. It allows users to explore historical data, analyze trends in various country exchange rates, and generate custom plots.
 
 
 ## Overview 
