@@ -5,8 +5,8 @@ from dash import Dash, html, dcc, no_update
 from dash import Input, Output, callback, State, ctx
 import dash_bootstrap_components as dbc
 
-import analysis 
-import plots
+from src import analysis 
+from src import plots
 
 # Set the path to the data files
 PATH_CURRENCY = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'clean_exchange_data.csv'))

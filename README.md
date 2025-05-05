@@ -26,12 +26,18 @@ This repository contains all the files needed to run **The Currency Capsule**, a
 ## Quick Start
 
 1. Clone the repository and ensure that dependencies are installed:
+
    `git clone https://github.com/vkalithkar/Currency-Conversion-Project.git`
 
 2. Run the application:
+
    `python src/main_dash.py`
 
 3. Click on the link to the local server from the terminal, which should open your browser to the Currency Capsule!
+
+4. Start using the Currency Capsule by inputting (sequentially), a country from the first dropdown menu, a currency from the next dropdown menu, and then type in a valid year for that currency. 
+
+5. Now, press "Estimate Exchange Rate!" 
    
    
 ## Dependencies 
