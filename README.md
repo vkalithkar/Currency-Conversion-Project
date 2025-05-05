@@ -53,4 +53,4 @@ GitHub: @vkalithkar
 
 Project Link: https://github.com/vkalithkar/Currency-Conversion-Project.git
 
-This project is maintained using the uv package manager.
+This project is maintained using the [uv package manager](https://docs.astral.sh/uv/).
