@@ -11,9 +11,8 @@ This repository contains all the files needed to run **The Currency Capsule**, a
 ## Features
 
 * Interactive Dash web application for data visualization.
-* Visualizes currency exchange rates and economic crisis data.
-* Provides tools for cleaning and analyzing raw data.
-* Generates custom plots for deeper insights into trends.
+* Calculates nominal exchange rates of currencies at a time relative to the contemporaneous USD
+* Visualizes currency exchange rates and historical crisis data by generating custom plots.
 * Easy-to-use interface for exploring datasets.
 
 ### Files included in `src/`:
@@ -21,28 +20,18 @@ This repository contains all the files needed to run **The Currency Capsule**, a
 * `main_dash.py`: The entry point of the application. Start here!
 * `basicpage.py`: Contains the layout and structure of the Dash application.
 * `plots.py`: Handles the creation of interactive plots and visualizations.
-* `analysis.py`: Includes functions for data analysis and trend identification.
+* `analysis.py`: Includes functions for data subsetting.
 * `assets/`: Contains static assets like CSS and images for the Dash app.
 
 ## Quick Start
 
-1. Clone the repository:
+1. Clone the repository and ensure that dependencies are installed:
    `git clone https://github.com/vkalithkar/Currency-Conversion-Project.git`
 
-2. Navigate to the project directory:
-   `cd Currency-Conversion-Project`
-
-3. (Optional) Create and activate a virtual environment:
-   `python -m venv venv`  
-   `venv\Scripts\activate`
-
-4. Install dependencies:
-   `pip install -r requirements.txt`
-
-5. Run the application:
+2. Run the application:
    `python src/main_dash.py`
 
-6. Click on the link to the local server from the terminal, which should open your browser to the Currency Capsule!
+3. Click on the link to the local server from the terminal, which should open your browser to the Currency Capsule!
    
    
 ## Dependencies 
@@ -59,6 +48,9 @@ The following Python libraries are required to run **The Currency Capsule**:
 ## Author:
 
 Vandana Kalithkar
+
 GitHub: @vkalithkar
 
 Project Link: https://github.com/vkalithkar/Currency-Conversion-Project.git
+
+This project is maintained using the uv package manager.
