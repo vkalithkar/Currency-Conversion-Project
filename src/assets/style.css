@@ -11,7 +11,7 @@ h2 {
     font-family: 'Unica One';
 }
 
-/*citation for background image: heropatterns.org*/
+/*citation for background image: heropatterns.com*/
 body {
     color: var(--gold);
     background-color: var(--emerald);
@@ -51,12 +51,22 @@ body {
     color: #FFFFFF !important;
 }
     
+.popover-icon {
+    background-color: var(--maroon);
+    color: var(--gold);
+    border: 1px solid var(--gold);  
+    font-family: 'Unica One';
+    cursor: pointer;
+
+    width: 20px;
+    height: 20px;
+    border-radius: 50%; 
+}
+
 :root {
     --gold: #b59e5f;
     --brown: #322a17;
     --emerald: #182225;
     --maroon: #280409;
-    --another: #344956;
-    --yeta: #344756; 
     --grey: #1f2121;
 }
